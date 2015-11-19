@@ -3,11 +3,13 @@ package com.abc;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.stream.Collectors.summingDouble;
+
 public class Bank {
     private List<Customer> customers;
 
     public Bank() {
-        customers = new ArrayList<Customer>();
+        customers = new ArrayList<>();
     }
 
     public void addCustomer(Customer customer) {
@@ -15,32 +17,31 @@ public class Bank {
     }
 
     public String customerSummary() {
-        String summary = "Customer Summary";
-        for (Customer c : customers)
-            summary += "\n - " + c.getName() + " (" + format(c.getNumberOfAccounts(), "account") + ")";
-        return summary;
+        StringBuilder sb = new StringBuilder();
+        sb.append("Customer Summary");
+        for (Customer c : customers) {
+            sb.append("\n - ");
+            sb.append(String.format("%s (%s)", c.getName(), format(c.getNumberOfAccounts(), "account")));
+
+
+        }
+        return sb.toString();
     }
 
     //Make sure correct plural of word is created based on the number passed in:
     //If number passed in is 1 just return the word otherwise add an 's' at the end
     private String format(int number, String word) {
-        return number + " " + (number == 1 ? word : word + "s");
+        return String.format("%d %s", number, number == 1 ? word : word + "s");
     }
 
     public double totalInterestPaid() {
-        double total = 0;
-        for(Customer c: customers)
-            total += c.totalInterestEarned();
+        double total = customers
+                .stream()
+                .map(Customer::totalInterestEarned)
+                .collect(summingDouble(Double::doubleValue));
+
         return total;
     }
 
-    public String getFirstCustomer() {
-        try {
-            customers = null;
-            return customers.get(0).getName();
-        } catch (Exception e){
-            e.printStackTrace();
-            return "Error";
-        }
-    }
+
 }
